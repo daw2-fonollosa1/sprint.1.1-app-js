@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Educational DAW2 project manager using browser localStorage.",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test --test-isolation=none",
     "serve": "python3 -m http.server 8080 --directory frontend"
   },
   "engines": {
