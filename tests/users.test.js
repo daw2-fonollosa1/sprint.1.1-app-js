@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createDemoData } from "../frontend/js/modules/demo-data.js";
 import { createStorage } from "../frontend/js/modules/storage.js";
 import { createUser, deleteUser, listUsers, updateUser } from "../frontend/js/modules/users.js";
+import { createProject } from "../frontend/js/modules/projects.js";
 import { AuthorizationError, ValidationError } from "../frontend/js/modules/permissions.js";
 import { MemoryStorage } from "./helpers/memory-storage.js";
 
@@ -52,6 +53,14 @@ test("deleting a teacher removes their grades and assignments but preserves proj
     assert.equal(data.teacherAssignments.some((row) => row.teacherId === "user-marta"), false);
     assert.equal(data.grades.some((grade) => grade.teacherId === "user-marta"), false);
     assert.equal(data.projects.length, 3);
+    assert.equal(createStorage(new MemoryStorage()).writeData(data), data);
+});
+
+test("deleting a teacher transfers ownership of projects they created", () => {
+    const data = createDemoData();
+    const project = createProject(data, teacher, { code: "OWNED", name: "Projecte propi", description: "Projecte creat pel docent." });
+    deleteUser(data, admin, teacher.userId);
+    assert.equal(data.projects.find((entry) => entry.id === project.id).createdBy, admin.userId);
     assert.equal(createStorage(new MemoryStorage()).writeData(data), data);
 });
 

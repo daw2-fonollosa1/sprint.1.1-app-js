@@ -62,3 +62,12 @@ test("generated identifiers include the requested prefix and stay unique", () =>
     assert.equal(values.size, 100);
     assert.ok([...values].every((id) => id.startsWith("test-")));
 });
+
+test("storage access failures are reported instead of being ignored", () => {
+    const readFailure = createStorage({ getItem() { throw new Error("unavailable"); }, setItem() {}, removeItem() {} });
+    assert.throws(() => readFailure.initialize(), StorageError);
+
+    const writeFailure = createStorage({ getItem() { return null; }, setItem() { throw new Error("quota exceeded"); }, removeItem() {} });
+    assert.throws(() => writeFailure.initialize(), StorageError);
+    assert.throws(() => writeFailure.writeData(createDemoData()), StorageError);
+});

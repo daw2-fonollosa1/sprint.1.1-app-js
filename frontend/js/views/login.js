@@ -1,6 +1,6 @@
 import { element, fieldGroup } from "../components/dom.js";
 
-export function createLoginView({ onSubmit, error = "" }) {
+export function createLoginView({ onSubmit, error = "", notice = "" }) {
     const form = element("form", {
         events: {
             submit: (event) => {
@@ -11,7 +11,7 @@ export function createLoginView({ onSubmit, error = "" }) {
         },
     }, [
         fieldGroup({ id: "identifier", label: "Nom d’usuari o correu electrònic", required: true, placeholder: "nom.usuari o correu@exemple.cat" }),
-        fieldGroup({ id: "password", label: "Contrasenya", type: "password", required: true, placeholder: "••••••••" }),
+        fieldGroup({ id: "password", label: "Contrasenya", type: "password", required: true, placeholder: "••••••••", autoComplete: "current-password" }),
         element("button", { className: "btn btn-primary btn-lg w-100 mt-2", text: "Inicia la sessió", attributes: { type: "submit" } }),
     ]);
 
@@ -30,6 +30,7 @@ export function createLoginView({ onSubmit, error = "" }) {
                             element("p", { className: "small text-uppercase text-secondary fw-semibold mb-2", text: "Gestió de projectes · DAW2" }),
                             element("h1", { className: "h2 mb-2", text: "Iniciar sessió" }),
                             element("p", { className: "text-secondary mb-4", text: "Accedeix al teu espai de treball amb el compte que t’ha facilitat l’administrador." }),
+                            notice ? element("div", { className: "alert alert-success", text: notice, attributes: { role: "status" } }) : null,
                             error ? element("div", { className: "alert alert-danger", text: error, attributes: { role: "alert" } }) : null,
                             form,
                             element("div", { className: "border-top mt-4 pt-3" }, [

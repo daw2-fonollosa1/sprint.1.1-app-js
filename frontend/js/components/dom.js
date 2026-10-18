@@ -32,10 +32,10 @@ export function button(label, className, onClick, attributes = {}) {
     });
 }
 
-export function fieldGroup({ id, label, type = "text", value = "", required = false, placeholder = "", helpText = "", inputMode, min, max, step }) {
+export function fieldGroup({ id, label, type = "text", value = "", required = false, placeholder = "", helpText = "", inputMode, min, max, step, autoComplete }) {
     const input = element("input", {
         className: "form-control",
-        attributes: { id, name: id, type, placeholder, required, min, max, step, inputmode: inputMode, autocomplete: type === "password" ? "new-password" : undefined },
+        attributes: { id, name: id, type, placeholder, required, min, max, step, inputmode: inputMode, autocomplete: autoComplete ?? (type === "password" ? "new-password" : undefined) },
         properties: { value },
     });
     const children = [element("label", { className: "form-label", text: label, attributes: { for: id } }), input];

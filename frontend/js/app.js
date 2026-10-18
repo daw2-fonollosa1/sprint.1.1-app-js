@@ -20,6 +20,7 @@ let storage;
 let data;
 let startupError = "";
 let loginError = "";
+let loginNotice = "";
 let notification = null;
 let editingUserId = null;
 let editingProjectId = null;
@@ -50,7 +51,7 @@ function render() {
         data = storage.readData();
         const current = getCurrentUser(data, storage);
         if (!current) {
-            appRoot.replaceChildren(createLoginView({ onSubmit: handleLogin, error: loginError }));
+            appRoot.replaceChildren(createLoginView({ onSubmit: handleLogin, error: loginError, notice: loginNotice }));
             return;
         }
 
@@ -106,10 +107,12 @@ function handleLogin(credentials) {
         data = storage.readData();
         login(data, storage, credentials);
         loginError = "";
+        loginNotice = "";
         notification = { message: "Has iniciat la sessió correctament.", kind: "success" };
         setRoute("dashboard");
         render();
     } catch (error) {
+        loginNotice = "";
         loginError = error.message || "No s’ha pogut iniciar la sessió.";
         render();
     }
@@ -119,6 +122,7 @@ function handleLogout() {
     try {
         logout(storage);
         loginError = "";
+        loginNotice = "";
         notification = null;
         setRoute("login");
         render();
@@ -214,8 +218,9 @@ function resetDemonstrationData() {
     if (!window.confirm("Vols restablir les dades de demostració? Se sobreescriuran tots els canvis locals.")) return;
     try {
         data = storage.resetDemoData(true);
-        notification = { message: "Les dades de demostració s’han restablert.", kind: "success" };
+        loginNotice = "Les dades de demostració s’han restablert.";
         loginError = "";
+        notification = null;
         setRoute("login");
         render();
     } catch (error) {
