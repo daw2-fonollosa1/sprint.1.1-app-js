@@ -3,12 +3,12 @@ import { listUsers } from "../modules/users.js";
 import { pageHeading, statCard, tableCard, formCard, roleName, link } from "./common.js";
 
 export function renderAdminDashboard(data) {
-    const userCount = data.users.filter((user) => user.role !== "administrator").length;
+    const userCount = data.users.length;
     const teacherCount = data.users.filter((user) => user.role === "teacher").length;
     const studentCount = data.users.filter((user) => user.role === "student").length;
     const assignmentCount = data.teacherAssignments.length + data.studentAssignments.length + data.itemAssignments.length;
     const cards = [
-        statCard("Usuaris gestionats", userCount, "Professorat i alumnat"),
+        statCard("Usuaris totals", userCount, "Inclou el compte d’administració"),
         statCard("Professorat", teacherCount),
         statCard("Alumnat", studentCount),
         statCard("Projectes", data.projects.length),
