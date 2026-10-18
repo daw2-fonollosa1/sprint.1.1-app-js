@@ -111,7 +111,19 @@ export function createStorage(storage = globalThis.localStorage) {
         initialize() {
             return safely(() => {
                 const existing = storage.getItem(STORAGE_KEYS.data);
-                if (existing !== null) return assertDataIntegrity(parseStoredValue(existing, "l’aplicació"));
+                if (existing !== null) {
+                    const storedData = parseStoredValue(existing, "l’aplicació");
+                    if (storedData?.schemaVersion === 2) {
+                        const collectionNames = ["users", "projects", "items", "teacherAssignments", "studentAssignments", "itemAssignments", "grades"];
+                        const wasClearedByPreviousVersion = collectionNames.every((name) => Array.isArray(storedData[name]) && storedData[name].length === 0);
+                        const migratedData = wasClearedByPreviousVersion ? createDemoData() : { ...storedData, schemaVersion: CURRENT_SCHEMA_VERSION };
+                        assertDataIntegrity(migratedData);
+                        storage.setItem(STORAGE_KEYS.data, JSON.stringify(migratedData));
+                        if (wasClearedByPreviousVersion) storage.removeItem(STORAGE_KEYS.session);
+                        return clone(migratedData);
+                    }
+                    return assertDataIntegrity(storedData);
+                }
                 const initialData = createDemoData();
                 assertDataIntegrity(initialData);
                 storage.setItem(STORAGE_KEYS.data, JSON.stringify(initialData));
