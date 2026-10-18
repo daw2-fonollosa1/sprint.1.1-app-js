@@ -16,9 +16,23 @@ Relationships are explicit arrays of assignment records. Removing a user, projec
 
 Administrators manage users, items, and assignments. Teachers can create projects and are assigned to projects they create; they can edit or delete only projects they created. Teachers can change only their own grades. Students can read only their own project and grade data.
 
+## Referential integrity
+
+Deleting a teacher or student removes their assignments and grade rows. If a deleted teacher created a project, its creator is reassigned to the administrator so the project can remain available. Deleting a project or evaluable item removes dependent assignments and grades. This mirrors the cascading behavior documented in the PHP reference database schema.
+
+## Student progress
+
+The student dashboard reports how many assigned project items have at least one grade. It does not calculate an overall project average because the functional requirement defines the arithmetic mean for teacher grades on each individual item.
+
 ## Demo authentication
 
 Five local accounts mirror the PHP reference. They are demonstration identities with a shared sample password, not production credentials. Passwords and role state in a browser-only application do not provide production security.
+
+## Referential integrity and student progress
+
+Deleting a teacher or student removes their assignments and grade rows. If a deleted teacher created a project, its creator is reassigned to the administrator so the project remains available. Deleting a project or evaluable item removes dependent assignments and grades.
+
+The student dashboard reports how many assigned project items have at least one grade. It does not calculate an overall project average because the functional requirement defines the arithmetic mean for teacher grades on each individual item.
 
 ## Bootstrap
 

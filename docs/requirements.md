@@ -8,7 +8,7 @@ Administrators manage teacher and student accounts, projects, reusable evaluable
 
 Projects and evaluable items have unique codes, names, and descriptions. A project may have many teachers, students, and evaluable items. An item may be reused across projects. Grades range from 0 to 10 and identify the project, student, item, and teacher. When multiple teachers grade the same student and item in a project, the displayed grade is their arithmetic mean. Missing grades remain pending and do not count as zero.
 
-The administrator dashboard reports current totals for users, teachers, students, projects, evaluable items, and relationships. Dashboards and tables are derived from the current browser data.
+The administrator dashboard reports current totals for all users (including the administrator), teachers, students, projects, evaluable items, assignment relationships, and individual grade records. Dashboards and tables are derived from the current browser data.
 
 ## Roles and permissions
 
