@@ -68,7 +68,7 @@ export function getProjectDetails(data, session, projectId) {
     return {
         ...project,
         teachers: data.teacherAssignments.filter((entry) => entry.projectId === projectId).map((entry) => publicUser(data.users.find((candidate) => candidate.id === entry.teacherId))),
-        students: data.studentAssignments.filter((entry) => entry.projectId === projectId).map((entry) => publicUser(data.users.find((candidate) => candidate.id === entry.studentId))),
+        students: data.studentAssignments.filter((entry) => entry.projectId === projectId && (user.role !== "student" || entry.studentId === user.id)).map((entry) => publicUser(data.users.find((candidate) => candidate.id === entry.studentId))),
         items: data.itemAssignments.filter((entry) => entry.projectId === projectId).map((entry) => data.items.find((candidate) => candidate.id === entry.itemId)),
     };
 }

@@ -1,6 +1,7 @@
 import { button, element, fieldGroup } from "../components/dom.js";
 import { listProjects, getProjectDetails } from "../modules/projects.js";
-import { card, formCard, link, pageHeading, tableCard, roleName } from "./common.js";
+import { getGradesForStudent } from "../modules/grades.js";
+import { card, formCard, link, pageHeading, tableCard, roleName, formatGrade } from "./common.js";
 
 export function renderProjects(data, session, user, selectedProjectId, editingProjectId, handlers) {
     const projects = listProjects(data, session);
@@ -39,7 +40,7 @@ export function renderProjects(data, session, user, selectedProjectId, editingPr
     });
 
     const sections = [pageHeading(roleName(user.role), "Projectes", projectDescription(user.role))];
-    if (selectedProject) sections.push(renderProjectDetails(selectedProject, user));
+    if (selectedProject) sections.push(renderProjectDetails(data, session, selectedProject, user));
     sections.push(element("div", { className: "row g-4 align-items-start" }, [
         projectForm ? element("div", { className: "col-12 col-xl-4" }, projectForm) : null,
         element("div", { className: projectForm ? "col-12 col-xl-8" : "col-12" }, tableCard("Projectes disponibles", "Els projectes que pots consultar amb el teu compte.", ["Codi", "Projecte", "Alumnat", "Ítems", "Accions"], projectRows, "No tens cap projecte assignat.")),
@@ -47,12 +48,27 @@ export function renderProjects(data, session, user, selectedProjectId, editingPr
     return element("section", {}, sections);
 }
 
-function renderProjectDetails(project, user) {
+function renderProjectDetails(data, session, project, user) {
+    const studentGrades = user.role === "student" ? getGradesForStudent(data, session).filter((row) => row.project.id === project.id) : [];
     const itemList = project.items.length
-        ? element("ul", { className: "list-group list-group-flush" }, project.items.map((item) => element("li", { className: "list-group-item px-0" }, [
-            element("span", { className: "fw-semibold", text: `${item.code} · ${item.name}` }),
-            element("span", { className: "small text-secondary d-block", text: item.description }),
-        ])))
+        ? element("ul", { className: "list-group list-group-flush" }, project.items.map((item) => {
+            const itemGrades = studentGrades.find((row) => row.item.id === item.id);
+            const gradeSummary = user.role === "student"
+                ? itemGrades?.average === null || !itemGrades
+                    ? element("span", { className: "badge text-bg-light border", text: "Pendent" })
+                    : element("span", { className: "badge text-bg-dark", text: `Mitjana ${formatGrade(itemGrades.average)}` })
+                : null;
+            const teachers = itemGrades?.teacherGrades?.length
+                ? element("ul", { className: "small mb-0 mt-2" }, itemGrades.teacherGrades.map((grade) => element("li", { text: `${grade.teacher.fullName}: ${formatGrade(grade.value)}` })))
+                : null;
+            return element("li", { className: "list-group-item px-0" }, [
+                element("div", { className: "d-flex justify-content-between align-items-start gap-2" }, [
+                    element("span", {}, [element("span", { className: "fw-semibold", text: `${item.code} · ${item.name}` }), element("span", { className: "small text-secondary d-block", text: item.description })]),
+                    gradeSummary,
+                ]),
+                teachers,
+            ]);
+        }))
         : element("p", { className: "text-secondary mb-0", text: "Aquest projecte encara no té ítems avaluables." });
     const details = [
         card("Informació general", "Detalls del projecte assignat.", element("dl", { className: "mb-0" }, [
