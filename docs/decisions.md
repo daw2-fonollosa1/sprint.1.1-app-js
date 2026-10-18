@@ -24,9 +24,9 @@ Deleting a teacher or student removes their assignments and grade rows. If a del
 
 The student dashboard reports how many assigned project items have at least one grade. It does not calculate an overall project average because the functional requirement defines the arithmetic mean for teacher grades on each individual item.
 
-## Initial administrator setup
+## Demo authentication
 
-The first visit starts with empty data and offers a one-time form to create the administrator. Once that account exists, the app returns to sign-in and the administrator creates teacher and student accounts. Passwords and role state in a browser-only application do not provide production security.
+Five local accounts mirror the PHP reference. They are demonstration identities with a shared sample password, not production credentials. Passwords and role state in a browser-only application do not provide production security.
 
 ## Referential integrity and student progress
 

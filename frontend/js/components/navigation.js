@@ -4,7 +4,7 @@ const roleLabels = Object.freeze({ administrator: "Administrador", teacher: "Pro
 
 export function getNavigationItems(role) {
     const common = [{ view: "dashboard", label: "Tauler" }, { view: "projects", label: "Projectes" }];
-    if (role === "administrator") return [...common, { view: "users", label: "Usuaris" }, { view: "items", label: "Ítems avaluables" }, { view: "assignments", label: "Assignacions" }, { view: "grades", label: "Qualificacions" }];
+    if (role === "administrator") return [...common, { view: "users", label: "Usuaris" }, { view: "items", label: "Ítems avaluables" }, { view: "assignments", label: "Assignacions" }, { view: "grades", label: "Qualificacions" }, { view: "settings", label: "Dades de demostració" }];
     if (role === "teacher") return [...common, { view: "grades", label: "Qualificacions" }];
     if (role === "student") return [...common, { view: "grades", label: "Les meues qualificacions" }];
     return [];

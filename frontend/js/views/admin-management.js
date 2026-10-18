@@ -120,3 +120,13 @@ export function renderAdminGrades(data, session) {
     ]);
 }
 
+export function renderAdminSettings(onReset) {
+    return element("section", {}, [
+        pageHeading("Administració", "Dades de demostració", "Restableix les dades inicials quan vulgues tornar a començar la demostració."),
+        element("div", { className: "alert alert-warning", attributes: { role: "note" } }, [
+            element("h2", { className: "h5", text: "Restabliment de dades" }),
+            element("p", { text: "Aquesta acció reemplaça els canvis desats en aquest navegador pels comptes i projectes de demostració." }),
+            button("Restableix les dades de demostració", "btn btn-danger", onReset),
+        ]),
+    ]);
+}

@@ -2,7 +2,7 @@
 
 ## Functional requirements
 
-The application supports administrator, teacher, and student accounts. The first visit allows one administrator account to be created; after setup, there is no public registration. Users sign in with a username or email and are sent to the dashboard for their role.
+The application supports administrator, teacher, and student accounts. There is one administrator and there is no public registration. Users sign in with a username or email and are sent to the dashboard for their role.
 
 Administrators manage teacher and student accounts, projects, reusable evaluable items, and all project assignments. Teachers can create projects, see projects to which they are assigned, and enter or edit their own grades for assigned students and project items. Students see only their projects, items, and grades.
 
@@ -46,4 +46,4 @@ Project creators are automatically assigned as teachers so a teacher-created pro
 
 ## Limitations
 
-This is an educational browser-only application. Client-side roles and localStorage can be changed by a user through browser developer tools. Saved data is not appropriate for sensitive information.
+This is an educational browser-only simulation. Client-side roles and localStorage can be changed by a user through browser developer tools. Demo credentials and saved data are not appropriate for real accounts or sensitive data.

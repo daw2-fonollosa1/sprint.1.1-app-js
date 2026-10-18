@@ -2,7 +2,7 @@ export const DEMO_PASSWORD = "12345";
 
 export function createDemoData() {
     return {
-        schemaVersion: 2,
+        schemaVersion: 1,
         users: [
             { id: "user-admin", fullName: "Administrador de demostració", username: "admin-demo", email: "admin@daw2.test", role: "administrator", password: DEMO_PASSWORD },
             { id: "user-marta", fullName: "Marta Vila Puig", username: "teacher-marta", email: "marta@daw2.test", role: "teacher", password: DEMO_PASSWORD },
