@@ -1,0 +1,14 @@
+{
+  "name": "daw2-project-manager-js",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Educational DAW2 project manager using browser localStorage.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "python3 -m http.server 8080 --directory frontend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
