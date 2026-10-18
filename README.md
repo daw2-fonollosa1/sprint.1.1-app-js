@@ -4,8 +4,8 @@ An educational project management application for DAW2 Sprint 1.1. The browser v
 
 ## Features
 
-- Demonstration sign-in for one administrator, teachers, and students; no public registration.
-- Administrator screens for users, projects, evaluable items, project assignments, grades, and demonstration data reset.
+- One-time initial administrator setup; no public registration after setup.
+- Administrator screens for users, projects, evaluable items, project assignments, and grades.
 - Teacher screens for assigned projects, project details, students, items, and grade creation or editing.
 - Student screens for assigned projects, progress, individual teacher grades, and the arithmetic mean for each item.
 - Persistent local data, referential integrity checks, duplicate prevention, and confirmation before destructive actions.
@@ -16,7 +16,7 @@ An educational project management application for DAW2 Sprint 1.1. The browser v
 - HTML5 and CSS3.
 - Vanilla JavaScript with ES Modules.
 - Bootstrap 5.3 loaded from jsDelivr.
-- Browser `localStorage` for all persistent data and demonstration session state.
+- Browser `localStorage` for all persistent data and session state.
 - Node.js built-in test runner, GitHub Actions, Docker Compose, and Nginx.
 
 The app has no application backend, database, or external authentication service. Node.js is used only for the test runner; Python's static server is used for local preview.
@@ -30,7 +30,7 @@ frontend/
 └── js/
     ├── app.js
     ├── components/       DOM, navigation, and notifications
-    ├── modules/          storage, authentication, business rules, and demo data
+    ├── modules/          storage, authentication, and business rules
     └── views/            shared pages and administrator/teacher/student screens
 tests/                    Node.js unit tests and in-memory storage adapter
 docs/                     requirements, architecture, decisions, and testing
@@ -74,29 +74,17 @@ npm test
 
 The tests use Node.js's built-in test runner and an in-memory storage adapter. They cover initialization and persistence, user/project/item CRUD, assignments, authorization, login/logout, referential integrity, grade ownership, and multiple-teacher averages. GitHub Actions runs the same suite on pushes and pull requests.
 
-## Demonstration accounts
+## First use
 
-All demonstration accounts use the password `12345`.
-
-| Role | Username | Email |
-| --- | --- | --- |
-| Administrator | `admin-demo` | `admin@daw2.test` |
-| Teacher | `teacher-marta` | `marta@daw2.test` |
-| Teacher | `teacher-joan` | `joan@daw2.test` |
-| Student | `student-marc` | `marc@daw2.test` |
-| Student | `student-laura` | `laura@daw2.test` |
-
-These are local demo identities only. Do not enter real account information or use real passwords.
+The application starts with empty data. On its first visit, create the administrator account; that one-time setup is then replaced by the regular sign-in form. The administrator can create teacher and student accounts from **Usuaris**.
 
 ## Data and grading decisions
 
-On first load, the application writes the PHP reference's sample users, projects, items, assignments, and grades to localStorage. Later loads preserve saved changes. Records include a schema version and are checked for duplicate IDs, invalid relationships, and invalid grades. Corrupted or unsupported saved data produces an error instead of silently replacing existing data.
+On first load, the application writes empty collections to localStorage. Later loads preserve saved changes. Records include a schema version and are checked for duplicate IDs, invalid relationships, and invalid grades. Data from the earlier sample-data version is cleared once during migration; other corrupted or unsupported data produces an error instead of silently replacing existing data.
 
 Deleting a teacher or student removes their project assignments and their associated grade rows. A teacher-created project is reassigned to the administrator if that teacher is deleted. Deleting a project or item removes its assignment links and related grades. These rules keep stored relationships valid.
 
 Grades are stored separately for each teacher, student, project, and item. The displayed item average is the arithmetic mean of the available teacher grades; missing grades remain pending. Student progress is a count of assigned project items that have at least one grade. The application does not calculate a separate overall project grade.
-
-The administrator can restore the original demonstration data from **Dades de demostració**. This requires confirmation and replaces the local data for the current browser origin.
 
 ## Git workflow
 
@@ -105,7 +93,7 @@ Development for this repository uses one dedicated branch, `sprint-1-1-javascrip
 ## Known limitations
 
 - localStorage is local to one browser and origin. It does not synchronize across users or devices and can be changed or cleared through browser tools.
-- Authentication and role checks run entirely in JavaScript. Demo passwords are stored in browser data; this is not production authentication and does not protect sensitive information.
-- The app is intended for coursework and demonstration data only.
+- Authentication and role checks run entirely in JavaScript. Passwords are stored in browser data; this is not production authentication and does not protect sensitive information.
+- The app is intended for coursework and should not store sensitive information.
 - Bootstrap is loaded from a public CDN, so its styling is unavailable without internet access.
 - Browser-level automated tests are not included; automated checks focus on business logic. No WebDriver or browser automation package was available in the development environment, and Firefox failed to start headlessly with the system profile.

@@ -24,6 +24,17 @@ function validateUserFields(data, input, ignoredId = null) {
     return { fullName, username, email };
 }
 
+export function createInitialAdministrator(data, input) {
+    input = input ?? {};
+    if (data.users.length !== 0) throw new ValidationError("El compte inicial d’administració ja s’ha creat.");
+    const fields = validateUserFields(data, input);
+    const password = normalizeText(input.password, "la contrasenya");
+    if (password.length < 5) throw new ValidationError("La contrasenya ha de tenir almenys 5 caràcters.");
+    const user = { id: createId("user"), ...fields, role: "administrator", password };
+    data.users.push(user);
+    return publicUser(user);
+}
+
 export function listUsers(data, session) {
     requireAdministrator(data, session);
     return data.users.map(({ password, ...user }) => user);

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createDemoData } from "../frontend/js/modules/demo-data.js";
+import { createDemoData } from "./fixtures/demo-data.js";
 import { createStorage } from "../frontend/js/modules/storage.js";
 import { createProject, deleteProject, getProjectDetails, listProjects, updateProject } from "../frontend/js/modules/projects.js";
 import { AuthorizationError } from "../frontend/js/modules/permissions.js";

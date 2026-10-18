@@ -5,7 +5,6 @@ The static entry point is `frontend/index.html`. It loads Bootstrap, the shared 
 ```text
 app.js
 ├── modules/storage.js       localStorage serialization, initialization, and schema version
-├── modules/demo-data.js     repeatable initial records
 ├── modules/auth.js          sign-in, persisted session, and logout
 ├── modules/users.js         user validation and administrator-only operations
 ├── modules/projects.js      project CRUD and creator permissions
@@ -19,7 +18,7 @@ app.js
 
 `frontend/js/views/` contains the shared page builders and role-specific administrator, teacher, and student screens. `app.js` reads the hash route, resolves the user from the saved session, checks the role's navigation allowlist, renders a view, and wires user actions to the business services.
 
-Each operation receives the current data and session and checks permissions before changing it. Storage is injected into services so the same rules can be tested with an in-memory implementation in Node.js. Views use DOM nodes and `textContent` for user-provided text.
+Each operation receives the current data and session and checks permissions before changing it. Storage is injected into services so the same rules can be tested with an in-memory implementation in Node.js. The production app starts with empty collections and offers a one-time initial administrator setup. Views use DOM nodes and `textContent` for user-provided text.
 
 The data relationships mirror the PHP reference: users connect to projects through teacher and student assignment arrays; projects connect to reusable items through item assignments; grades connect an assigned teacher, assigned student, and project item. Deletions cascade to dependent records.
 

@@ -1,11 +1,22 @@
-import { createDemoData } from "./demo-data.js";
-
 export const STORAGE_KEYS = Object.freeze({
     data: "daw2ProjectManager:data",
     session: "daw2ProjectManager:session",
 });
 
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
+
+function createEmptyData() {
+    return {
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        users: [],
+        projects: [],
+        items: [],
+        teacherAssignments: [],
+        studentAssignments: [],
+        itemAssignments: [],
+        grades: [],
+    };
+}
 
 export class StorageError extends Error {
     constructor(message, options) {
@@ -36,8 +47,10 @@ export function assertDataIntegrity(data) {
     const userById = new Map(data.users.map((user) => [user.id, user]));
     const projectIds = new Set(data.projects.map((project) => project.id));
     const itemIds = new Set(data.items.map((item) => item.id));
-    if (data.users.filter((user) => user.role === "administrator").length !== 1) {
-        throw new StorageError("Les dades han de contenir un únic compte d’administració.");
+    const administratorCount = data.users.filter((user) => user.role === "administrator").length;
+    if ((data.users.length > 0 && administratorCount !== 1)
+        || (data.users.length === 0 && collectionNames.slice(1).some((name) => data[name].length > 0))) {
+        throw new StorageError("Les dades han de tenir un administrador o estar completament buides.");
     }
 
     const checkAssignments = (rows, key, expectedRole, label) => {
@@ -111,11 +124,24 @@ export function createStorage(storage = globalThis.localStorage) {
         initialize() {
             return safely(() => {
                 const existing = storage.getItem(STORAGE_KEYS.data);
-                if (existing !== null) return assertDataIntegrity(parseStoredValue(existing, "l’aplicació"));
-                const initialData = createDemoData();
-                assertDataIntegrity(initialData);
-                storage.setItem(STORAGE_KEYS.data, JSON.stringify(initialData));
-                return clone(initialData);
+                if (existing === null) {
+                    const initialData = createEmptyData();
+                    assertDataIntegrity(initialData);
+                    storage.setItem(STORAGE_KEYS.data, JSON.stringify(initialData));
+                    return clone(initialData);
+                }
+
+                const storedData = parseStoredValue(existing, "l’aplicació");
+                if (storedData.schemaVersion === 1) {
+                    const containsOldSampleAccount = storedData.users?.some((user) => user.id === "user-admin" || user.username === "admin-demo");
+                    const migratedData = containsOldSampleAccount ? createEmptyData() : { ...storedData, schemaVersion: CURRENT_SCHEMA_VERSION };
+                    assertDataIntegrity(migratedData);
+                    storage.setItem(STORAGE_KEYS.data, JSON.stringify(migratedData));
+                    if (containsOldSampleAccount) storage.removeItem(STORAGE_KEYS.session);
+                    return clone(migratedData);
+                }
+
+                return assertDataIntegrity(storedData);
             }, "No s’han pogut inicialitzar les dades locals.");
         },
         readData() {
@@ -143,15 +169,6 @@ export function createStorage(storage = globalThis.localStorage) {
         },
         clearSession() {
             return safely(() => storage.removeItem(STORAGE_KEYS.session), "No s’ha pogut tancar la sessió local.");
-        },
-        resetDemoData(confirmed = false) {
-            if (!confirmed) throw new StorageError("Cal confirmar el restabliment de les dades.");
-            return safely(() => {
-                const initialData = createDemoData();
-                storage.setItem(STORAGE_KEYS.data, JSON.stringify(initialData));
-                storage.removeItem(STORAGE_KEYS.session);
-                return clone(initialData);
-            }, "No s’han pogut restablir les dades locals.");
         },
     };
 }

@@ -3,14 +3,14 @@ import { getNavigationItems, createApplicationLayout } from "./components/naviga
 import { showNotification } from "./components/notifications.js";
 import { createStorage } from "./modules/storage.js";
 import { login, getCurrentUser, logout } from "./modules/auth.js";
-import { createUser, updateUser, deleteUser } from "./modules/users.js";
+import { createInitialAdministrator, createUser, updateUser, deleteUser } from "./modules/users.js";
 import { createProject, updateProject, deleteProject } from "./modules/projects.js";
 import { createItem, updateItem, deleteItem } from "./modules/evaluable-items.js";
 import { assignTeacher, removeTeacherAssignment, assignStudent, removeStudentAssignment, assignItem, removeItemAssignment } from "./modules/assignments.js";
 import { createGrade, updateOwnGrade } from "./modules/grades.js";
 import { createLoginView } from "./views/login.js";
 import { renderAdminDashboard, renderAdminUsers } from "./views/admin.js";
-import { renderAdminItems, renderAdminAssignments, renderAdminGrades, renderAdminSettings } from "./views/admin-management.js";
+import { renderAdminItems, renderAdminAssignments, renderAdminGrades } from "./views/admin-management.js";
 import { renderProjects } from "./views/projects.js";
 import { renderTeacherDashboard, renderTeacherGrades } from "./views/teacher.js";
 import { renderStudentDashboard, renderStudentGrades } from "./views/student.js";
@@ -20,7 +20,6 @@ let storage;
 let data;
 let startupError = "";
 let loginError = "";
-let loginNotice = "";
 let notification = null;
 let editingUserId = null;
 let editingProjectId = null;
@@ -51,7 +50,8 @@ function render() {
         data = storage.readData();
         const current = getCurrentUser(data, storage);
         if (!current) {
-            appRoot.replaceChildren(createLoginView({ onSubmit: handleLogin, error: loginError, notice: loginNotice }));
+            const initialSetup = data.users.length === 0;
+            appRoot.replaceChildren(createLoginView({ onSubmit: initialSetup ? handleInitialAdministrator : handleLogin, error: loginError, initialSetup }));
             return;
         }
 
@@ -87,7 +87,6 @@ function renderPage(user, session, route) {
         if (route.view === "items") return renderAdminItems(data, session, editingItemId, itemHandlers(session));
         if (route.view === "assignments") return renderAdminAssignments(data, assignmentHandlers(session));
         if (route.view === "grades") return renderAdminGrades(data, session);
-        if (route.view === "settings") return renderAdminSettings(resetDemonstrationData);
     }
     if (user.role === "teacher") {
         if (route.view === "dashboard") return renderTeacherDashboard(data, session);
@@ -107,13 +106,27 @@ function handleLogin(credentials) {
         data = storage.readData();
         login(data, storage, credentials);
         loginError = "";
-        loginNotice = "";
         notification = { message: "Has iniciat la sessió correctament.", kind: "success" };
         setRoute("dashboard");
         render();
     } catch (error) {
-        loginNotice = "";
         loginError = error.message || "No s’ha pogut iniciar la sessió.";
+        render();
+    }
+}
+
+function handleInitialAdministrator(credentials) {
+    try {
+        data = storage.readData();
+        createInitialAdministrator(data, credentials);
+        storage.writeData(data);
+        login(data, storage, { identifier: credentials.username, password: credentials.password });
+        loginError = "";
+        notification = { message: "El compte d’administració s’ha creat correctament.", kind: "success" };
+        setRoute("dashboard");
+        render();
+    } catch (error) {
+        loginError = error.message || "No s’ha pogut crear el compte d’administració.";
         render();
     }
 }
@@ -122,7 +135,6 @@ function handleLogout() {
     try {
         logout(storage);
         loginError = "";
-        loginNotice = "";
         notification = null;
         setRoute("login");
         render();
@@ -212,21 +224,6 @@ function gradeHandlers(session) {
 
 function filterStudentGrades(projectId) {
     setRoute(projectId ? `grades?projectId=${encodeURIComponent(projectId)}` : "grades");
-}
-
-function resetDemonstrationData() {
-    if (!window.confirm("Vols restablir les dades de demostració? Se sobreescriuran tots els canvis locals.")) return;
-    try {
-        data = storage.resetDemoData(true);
-        loginNotice = "Les dades de demostració s’han restablert.";
-        loginError = "";
-        notification = null;
-        setRoute("login");
-        render();
-    } catch (error) {
-        notification = { message: error.message, kind: "error" };
-        render();
-    }
 }
 
 function readRoute() {

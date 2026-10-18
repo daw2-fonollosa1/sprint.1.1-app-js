@@ -1,18 +1,19 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createDemoData } from "../frontend/js/modules/demo-data.js";
+import { createDemoData } from "./fixtures/demo-data.js";
 import { assertDataIntegrity, createId, createStorage, STORAGE_KEYS, StorageError } from "../frontend/js/modules/storage.js";
 import { MemoryStorage } from "./helpers/memory-storage.js";
 
-test("initialization seeds demonstration data once", () => {
+test("initialization starts with empty data", () => {
     const backing = new MemoryStorage();
     const storage = createStorage(backing);
     const initial = storage.initialize();
 
-    assert.equal(initial.users.length, 5);
-    assert.equal(initial.projects.length, 3);
-    assert.equal(initial.grades.length, 6);
-    assert.equal(storage.readData().users[0].username, "admin-demo");
+    assert.equal(initial.users.length, 0);
+    assert.equal(initial.projects.length, 0);
+    assert.equal(initial.items.length, 0);
+    assert.equal(initial.grades.length, 0);
+    assert.deepEqual(storage.readData(), initial);
 });
 
 test("initialization preserves existing edits", () => {
@@ -44,17 +45,19 @@ test("integrity check rejects duplicate identifiers and duplicate assignments", 
     assert.throws(() => assertDataIntegrity(duplicateAssignment), /duplicada/);
 });
 
-test("demo reset requires confirmation and clears the saved session", () => {
+test("initialization clears old sample data and its session", () => {
     const backing = new MemoryStorage();
     const storage = createStorage(backing);
-    storage.initialize();
+    const oldSampleData = createDemoData();
+    oldSampleData.schemaVersion = 1;
+    backing.setItem(STORAGE_KEYS.data, JSON.stringify(oldSampleData));
     storage.writeSession({ userId: "user-admin" });
 
-    assert.throws(() => storage.resetDemoData(), /confirmar/);
-    assert.equal(storage.readSession().userId, "user-admin");
-    storage.resetDemoData(true);
+    const migrated = storage.initialize();
     assert.equal(storage.readSession(), null);
-    assert.equal(storage.readData().projects.length, 3);
+    assert.equal(migrated.users.length, 0);
+    assert.equal(migrated.projects.length, 0);
+    assert.equal(storage.readData().schemaVersion, 2);
 });
 
 test("generated identifiers include the requested prefix and stay unique", () => {
